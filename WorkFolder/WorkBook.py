@@ -97,7 +97,7 @@ class SquareMoveVel(SquareMove):
         super(SquareMoveVel, self).__init__()
 
     def go_forward(self, duration, speed):
-	
+
         # Get the initial time
         self.t_init = time.time()
 
@@ -106,17 +106,12 @@ class SquareMoveVel(SquareMove):
 
             msg = Twist()
             msg.linear.x = speed
-            msg.angular.z = 0.0
+            msg.angular.z = 0
             self.vel_ros_pub(msg)
             time.sleep(self.pub_rate)
 
-	    
-		
-
-	#time.sleep(3)
-
     def turn(self, duration, ang_speed):
-	
+
          # Get the initial time
         self.t_init = time.time()
 
@@ -124,37 +119,30 @@ class SquareMoveVel(SquareMove):
         while time.time() - self.t_init < duration and not ros.is_shutdown():
 
             msg = Twist()
-            msg.linear.x = 0.0
+            msg.linear.x = 0
             msg.angular.z = ang_speed
             self.vel_ros_pub(msg)
             time.sleep(self.pub_rate)
 
-	
-
     def move(self):
 
-        #self.go_forward(7.63, 0.1)
-        #self.go_forward(4,0)
-        #self.turn(2.7, 0.8)
-	#self.go_forward(4,0)
-        #self.go_forward(7.63, 0.1)
-	#self.go_forward(4,0)
-       	#self.turn(2.7, 0.8)
-	#self.go_forward(4,0)
-        #self.go_forward(7.63, 0.1)
-	#self.go_forward(4,0)
-	#self.turn(2.7, 0.8)
-	#self.go_forward(4,0)
-	#self.go_forward(7.63,0.1)
-        #self.go_forward(4,0)
-        #self.turn(2.7, 0.8)
+        self.go_forward(2, 0.5)
+        self.turn(0, 0)
 
-        self.stop_robot()
+        self.go_forward(0, 0)
+        self.turn(3.14, 0.5)
+
+        #self.go_forward(2, 0.5)
+        #self.turn(3.5, 0.5)
+        #self.go_forward(2, 0.5)
+        #self.turn(3.5, 0.5)
+        #self.go_forward(2, 0.5)
+        #self.stop_robot()
 
 
 class SquareMoveOdom(SquareMove):
     """
-    This class implements a square trajectory based on relative position control,
+    This class implements a semi closed-loop square trajectory based on relative position control,
     where only odometry is used. HOWTO:
      - Start the sensors on the turtlebot:
             $ roslaunch turtlebot3_gazebo turtlebot3_empty_world.launch 
@@ -175,7 +163,7 @@ class SquareMoveOdom(SquareMove):
         print roll, pitch, yaw
         return yaw
         
-    def move_of(self, d, speed=0.05):
+    def move_of(self, d, speed=0.5):
 
         x_init = self.odom_pose.position.x
         y_init = self.odom_pose.position.y
@@ -196,21 +184,19 @@ class SquareMoveOdom(SquareMove):
 
         sys.stdout.write("\n")
 
-    def turn_of(self, a, ang_speed=0.2):
+    def turn_of(self, a, ang_speed=0.4):
 
         # Convert the orientation quaternion message to Euler angles
-        a_init = abs(self.get_z_rotation(self.odom_pose.orientation)) #abs value to eliminate confusion betweem pi rads and -pi rads when the robot is looking downwards 
-	
-	sys.stdout.write("\r this is init a")
+        a_init = self.get_z_rotation(self.odom_pose.orientation)
         print a_init
 
         # Set the angular velocity forward until angle is reached
-        while (abs(abs(self.get_z_rotation(self.odom_pose.orientation)) - a_init)) < a and not ros.is_shutdown(): #abs value to make the difference positive, as variable a cannot be given a negative value
-	
-            #sys.stdout.write("\r [TURN] The robot has turned of {:.2f}".format(self.get_z_rotation(self.odom_pose.orientation) - \
-                 #a_init) + "rad over {:.2f}".format(a) + "rad")
-            #sys.stdout.flush()
-            #print (self.get_z_rotation(self.odom_pose.orientation) - abs(a_init))
+        while (self.get_z_rotation(self.odom_pose.orientation) - a_init) < a and not ros.is_shutdown():
+
+            # sys.stdout.write("\r [TURN] The robot has turned of {:.2f}".format(self.get_z_rotation(self.odom_pose.orientation) - \
+            #     a_init) + "rad over {:.2f}".format(a) + "rad")
+            # sys.stdout.flush()
+            # print (self.get_z_rotation(self.odom_pose.orientation) - a_init)
 
             msg = Twist()
             msg.angular.z = ang_speed
@@ -227,27 +213,17 @@ class SquareMoveOdom(SquareMove):
             time.sleep(0.1)
 
         # Implement main instructions
-
-	#Square implementation Main Instructions
-	#Following allows the robot to follow a square-shaped path
-		#Forward Velocity: 0.1 m/s
-		#Angular Velovity: 0.4 rad/s
-
-        self.move_of(0.5) #Move Forward (Up)
-        self.turn_of(math.pi/2) #1st CCW Rotation
-
-        self.move_of(0.5) #1st Left Move
-        self.turn_of((math.pi/2)-0.2) #2nd CCW Rotation
-	time.sleep(1.2) #Time delay, compensating for the 0.4 rads
-
-        self.move_of(0.5) #2nd Left Move
-        self.turn_of(1.47) #3rd CCW Rotation
-
-        self.move_of(0.5) #3rd Left Move
-	self.turn_of((math.pi/2)-0.2) #3rd CCW Rotation
-	time.sleep(1) #Time delay, compensating for the 0.4 rads
-
+        # self.move_of(0.5)
+        self.turn_of(math.pi/4)
+        self.move_of(0.5)
+        self.turn_of(math.pi/4)
+        self.move_of(0.5)
+        self.turn_of(math.pi/4)
+        self.move_of(0.5)
         self.stop_robot()
+
+
+
 
 if __name__ == '__main__':
 
@@ -269,3 +245,7 @@ if __name__ == '__main__':
     # Listen and Publish to ROS + execute moving instruction
     r.start_ros()
     r.move()
+
+
+
+
