@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import math
 import rospy as ros
 import sys
@@ -175,7 +177,7 @@ class SquareMoveOdom(SquareMove):
         print roll, pitch, yaw
         return yaw
         
-    def move_of(self, d, speed=0.05):
+    def move_of(self, d, speed=0.15):
 
         x_init = self.odom_pose.position.x
         y_init = self.odom_pose.position.y
@@ -230,22 +232,26 @@ class SquareMoveOdom(SquareMove):
 
 	#Square implementation Main Instructions
 	#Following allows the robot to follow a square-shaped path
-		#Forward Velocity: 0.1 m/s
-		#Angular Velovity: 0.4 rad/s
+		#Forward Velocity: 0.05 m/s
+		#Angular Velovity: 0.2 rad/s
 
-        self.move_of(0.5) #Move Forward (Up)
-        self.turn_of(math.pi/2) #1st CCW Rotation
+        self.move_of(1.1) #Move Forward (Up)
+        self.turn_of(1.48) #1st CCW Rotation
 
-        self.move_of(0.5) #1st Left Move
-        self.turn_of((math.pi/2)-0.2) #2nd CCW Rotation
-	time.sleep(1.2) #Time delay, compensating for the 0.4 rads
+        self.move_of(1.1) #1st Left Move
+        self.turn_of(1.37) #2nd CCW Rotation
+#	self.turn_of(1.07) #2nd CCW Rotation
+	time.sleep(1) #Time delay, compensating for the 0.2 rads
 
-        self.move_of(0.5) #2nd Left Move
-        self.turn_of(1.47) #3rd CCW Rotation
+        self.move_of(1.1) #2nd Left Move
+        self.turn_of(1.43) #3rd CCW Rotation
+#	self.turn_of(1.17) #3rd CCW Rotation
+	time.sleep(1) #Time delay, compensating for the 0.2 rads
 
-        self.move_of(0.5) #3rd Left Move
-	self.turn_of((math.pi/2)-0.2) #3rd CCW Rotation
-	time.sleep(1) #Time delay, compensating for the 0.4 rads
+        self.move_of(1.1) #3rd Left Move
+	self.turn_of(1.37) #3rd CCW Rotation
+#	self.turn_of(1.17) #3rd CCW Rotation
+	time.sleep(1) #Time delay, compensating for the 0.2 rads
 
         self.stop_robot()
 
